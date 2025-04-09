@@ -12,31 +12,34 @@ namespace Razorpay.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController : ControllerBase
+    public class ItemsController : ControllerBase
     {
-             private readonly RazorpayConfig _razorpayConfig;
-    private readonly HttpClient _client; 
-    private readonly IRazorpayService _razorpayService; 
+             private readonly IRazorpayService _razorpayService; 
+          private readonly HttpClient _client; 
+           private readonly RazorpayConfig _razorpayConfig;
 
-        public OrdersController(IOptions<RazorpayConfig> razorpayConfig, HttpClient httpClient, IRazorpayService razorpayService)
+        public ItemsController(IRazorpayService razorpayService, HttpClient client, IOptions<RazorpayConfig> config)
         {
-         _razorpayConfig = razorpayConfig.Value ?? throw new ArgumentNullException(nameof(razorpayConfig));
-        var key = _razorpayConfig.Key ?? throw new ArgumentNullException(nameof(_razorpayConfig.Key)); 
+        
+              _razorpayService = razorpayService; 
+            _client = client; 
+            _razorpayConfig = config.Value;
+
+              var key = _razorpayConfig.Key ?? throw new ArgumentNullException(nameof(_razorpayConfig.Key)); 
         var secret = _razorpayConfig.Secret ?? throw new ArgumentNullException(nameof(_razorpayConfig.Secret));
 
-        var byteArray = Encoding.ASCII.GetBytes($"{key}:{secret}");
-        _razorpayService = razorpayService;  
+        var byteArray = Encoding.ASCII.GetBytes($"{key}:{secret}"); 
 
-        _client = httpClient; 
+        _client = client; 
         _client.BaseAddress = new Uri("https://api.razorpay.com/v1/"); 
         _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray)); 
         }
 
-           [HttpGet]
-        public async Task<ActionResult<List<Orders>>> GetItems()
+         [HttpGet]
+        public async Task<ActionResult<List<Item>>> GetItems()
 
         {
-            var response = await _client.GetAsync("orders"); 
+            var response = await _client.GetAsync("items"); 
 
             if (!response.IsSuccessStatusCode)
             {
@@ -53,9 +56,9 @@ namespace Razorpay.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Orders>> GetItemById(string id)
+        public async Task<ActionResult<Item>> GetItemById(string id)
         {
-            var response = await _client.GetAsync($"orders/{id}");
+            var response = await _client.GetAsync($"items/{id}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -64,25 +67,26 @@ namespace Razorpay.Controllers
 
             var responseBody = await response.Content.ReadAsStringAsync(); 
 
-            var itemJson = JsonConvert.DeserializeObject<Orders>(responseBody); 
+            var itemJson = JsonConvert.DeserializeObject<Customer>(responseBody); 
 
             return Ok(itemJson);       
 
         }
 
          [HttpPost]
-        public async Task<ActionResult<CreateOrderResponseDto>> CreateOrder(OrderDto orderDto)
+        public async Task<ActionResult<CreateItemResponseDto>> CreateItem(ItemDto itemDto)
         {
-            if (orderDto == null) return BadRequest(); 
+             if (itemDto == null) return BadRequest(); 
 
-            var response = await _razorpayService.CreateOrderAsync(orderDto); 
+            var response = await _razorpayService.CreateItemAsync(itemDto); 
 
             if (response == null)
             {
-                return BadRequest("Cannot Create Order"); 
+                return BadRequest("Cannot Create Item"); 
             }
 
             return Ok(response); 
+            
         }
     }
 }

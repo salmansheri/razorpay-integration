@@ -1,34 +1,82 @@
 using System;
+using Newtonsoft.Json;
 
-namespace Razorpay.Dto;
-
-public class PaymentLinkDto
+namespace Razorpay.Dto
 {
-     public int Amount { get; set; }
+    public class PaymentLinkDto
+    {
+
+        // public PaymentLinkDto()
+        // {
+        //      // Auto-generate expire_by as current time + 24 hours (you can customize the duration)
+        //     ExpireBy = DateTimeOffset.UtcNow.AddHours(24).ToUnixTimeSeconds();
+
+        //     // Auto-generate a random reference_id using a GUID (or any preferred format)
+        //     ReferenceId = $"REF-{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 10).ToUpper()}";
+
+        // }
+        [JsonProperty("amount")]
+        public int Amount { get; set; }
+
+        [JsonProperty("currency")]
         public string Currency { get; set; } = string.Empty;
+
+        [JsonProperty("accept_partial")]
         public bool AcceptPartial { get; set; }
+
+        [JsonProperty("first_min_partial_amount")]
         public int FirstMinPartialAmount { get; set; }
+
+
+
+        [JsonProperty("expire_by")]
+        [JsonIgnore]
+
         public long ExpireBy { get; set; }
+
+        [JsonProperty("reference_id")]
         public string ReferenceId { get; set; } = string.Empty;
+
+        [JsonProperty("description")]
         public string Description { get; set; } = string.Empty;
+
+        [JsonProperty("customer")]
         public CustomerDto Customer { get; set; } = new();
+
+        [JsonProperty("notify")]
         public RazorpayNotify Notify { get; set; } = new();
+
+        [JsonProperty("reminder_enable")]
         public bool ReminderEnable { get; set; }
+
+        [JsonProperty("notes")]
         public Dictionary<string, string> Notes { get; set; } = new();
+
+        [JsonProperty("callback_url")]
         public string CallbackUrl { get; set; } = string.Empty;
+
+        [JsonProperty("callback_method")]
         public string CallbackMethod { get; set; } = string.Empty;
+    }
 
-}
+    public class CustomerDto
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; } = string.Empty;
 
-public class CustomerDto
-{
-    public string Name { get; set; } = string.Empty;
-    public string Contact { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-}
+        [JsonProperty("contact")]
+        public string Contact { get; set; } = string.Empty;
 
-public class RazorpayNotify
-{
-    public bool Sms { get; set; }
-    public bool Email { get; set; }
+        [JsonProperty("email")]
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class RazorpayNotify
+    {
+        [JsonProperty("sms")]
+        public bool Sms { get; set; }
+
+        [JsonProperty("email")]
+        public bool Email { get; set; }
+    }
 }

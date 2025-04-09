@@ -95,7 +95,33 @@ public class RazorpayService : IRazorpayService
         //     return null; 
         // } 
 
-        var content = new StringContent(JsonConvert.SerializeObject(paymentLinkDto), Encoding.UTF8, "application/json"); 
+      var paymentLinkObj = new PaymentLinkDto
+{
+    Amount = paymentLinkDto.Amount,
+    Currency = paymentLinkDto.Currency,
+    AcceptPartial = paymentLinkDto.AcceptPartial,
+    FirstMinPartialAmount = paymentLinkDto.FirstMinPartialAmount,
+    ExpireBy = DateTimeOffset.UtcNow.AddHours(24).ToUnixTimeSeconds(),
+    ReferenceId = $"REF-{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 10).ToUpper()}",
+    Description = paymentLinkDto.Description,
+    Customer = new CustomerDto
+    {
+        Name = paymentLinkDto.Customer.Name,
+        Contact = paymentLinkDto.Customer.Contact,
+        Email = paymentLinkDto.Customer.Email
+    },
+    Notify = new RazorpayNotify
+    {
+        Sms = paymentLinkDto.Notify.Sms,
+        Email = paymentLinkDto.Notify.Email
+    },
+    ReminderEnable = paymentLinkDto.ReminderEnable,
+    Notes = paymentLinkDto.Notes,
+    CallbackUrl = paymentLinkDto.CallbackUrl,
+    CallbackMethod = paymentLinkDto.CallbackMethod
+};
+
+        var content = new StringContent(JsonConvert.SerializeObject(paymentLinkObj), Encoding.UTF8, "application/json"); 
 
         var response = await _client.PostAsync("payment_links", content); 
 
