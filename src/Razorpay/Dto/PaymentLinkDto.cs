@@ -1,5 +1,6 @@
 using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Razorpay.Dto
 {
@@ -50,7 +51,7 @@ namespace Razorpay.Dto
         public bool ReminderEnable { get; set; }
 
         [JsonProperty("notes")]
-        public Dictionary<string, string> Notes { get; set; } = new();
+        public JToken Notes { get; set; } = JValue.CreateNull();
 
         [JsonProperty("callback_url")]
         public string CallbackUrl { get; set; } = string.Empty;

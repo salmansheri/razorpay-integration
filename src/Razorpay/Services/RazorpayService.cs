@@ -33,9 +33,70 @@ public class RazorpayService : IRazorpayService
 
 
     }
-    public Task<string?> CreateNetbankingPaymentLinkAsync(NetbankingPaymentLinkDto netbankingPaymentLinkDto)
+    public async Task<string?> CreateNetbankingPaymentLinkAsync(PaymentLinkWithNetBankingRequest netbankingPaymentLinkDto)
     {
-        throw new NotImplementedException();
+          if (netbankingPaymentLinkDto == null)
+        {
+            return null; 
+        }
+
+         var paymentLinkObj = new PaymentLinkWithNetBankingRequest
+{
+    Amount = netbankingPaymentLinkDto.Amount,
+    Currency = netbankingPaymentLinkDto.Currency,
+    AcceptPartial = netbankingPaymentLinkDto.AcceptPartial,
+    FirstMinPartialAmount = netbankingPaymentLinkDto.FirstMinPartialAmount,
+
+    ReferenceId = $"REF-{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 10).ToUpper()}",
+    Description = netbankingPaymentLinkDto.Description,
+
+    Customer = new CustomerDto
+    {
+        Name = netbankingPaymentLinkDto.Customer?.Name?.Trim() ?? string.Empty,
+        Contact = netbankingPaymentLinkDto.Customer?.Contact?.Trim() ?? string.Empty,
+        Email = netbankingPaymentLinkDto.Customer?.Email?.Trim() ?? string.Empty
+    },
+
+    Notify = new RazorpayNotify
+    {
+        Sms = netbankingPaymentLinkDto.Notify.Sms,
+        Email = netbankingPaymentLinkDto.Notify.Email
+    },
+
+    ReminderEnable = netbankingPaymentLinkDto.ReminderEnable,
+
+    Options = new OptionsDtoWithNetbanking
+    {
+        Order = new OrderDtoWithNetBanking
+        {
+            Method = netbankingPaymentLinkDto.Options.Order.Method,
+            BankAccount = new BankAccountDto
+            {
+                AccountNumber = netbankingPaymentLinkDto.Options.Order.BankAccount.AccountNumber?.Trim() ?? string.Empty,
+                Name = netbankingPaymentLinkDto.Options.Order.BankAccount.Name?.Trim() ?? string.Empty,
+                Ifsc = netbankingPaymentLinkDto.Options.Order.BankAccount.Ifsc?.Trim() ?? string.Empty
+            }
+        }
+    }
+};
+
+  var content = new StringContent(JsonConvert.SerializeObject(paymentLinkObj), Encoding.UTF8, "application/json"); 
+
+        var response = await _client.PostAsync("payment_links/", content); 
+
+        var responseBody = await response.Content.ReadAsStringAsync(); 
+
+        var paymentLinkResponse = JsonConvert.DeserializeObject<CreatePaymentLinkDto>(responseBody); 
+
+        if (paymentLinkResponse is null)
+        {
+            return null; 
+        }
+
+        return paymentLinkResponse.Short_Url; 
+
+
+
     }
 
     public async Task<string?> CreatePaymentLinkAsync(PaymentLinkDto paymentLinkDto)
