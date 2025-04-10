@@ -293,27 +293,27 @@ public class RazorpayService : IRazorpayService
 
     }
 
-    public async Task<CreateInvoiceResponseDto?> CreateInvoiceAsync(string customerId,  string itemId)
+    public async Task<CreateInvoiceResponseDto?> CreateInvoiceAsync(InvoiceDto invoiceDto)
     {
-        if (string.IsNullOrEmpty(customerId) || string.IsNullOrEmpty(itemId))
+        if (invoiceDto == null)
         {
             return null; 
         }
 
-        var invoiceDto = new InvoiceDto 
-        {
-            Customer_Id  = customerId,
-            Line_Items = new List<LineItemDto>
-            {
-                new LineItemDto
-                {
-                    Item_Id = itemId, 
-                }
-            },
+        // var invoiceDto = new InvoiceDto 
+        // {
+        //     Customer_Id  = customerId,
+        //     Line_Items = new List<LineItemDto>
+        //     {
+        //         new LineItemDto
+        //         {
+        //             Item_Id = itemId, 
+        //         }
+        //     },
             
 
 
-        }; 
+        // }; 
 
         var content = new StringContent(JsonConvert.SerializeObject(invoiceDto), Encoding.UTF8, "application/json"); 
 

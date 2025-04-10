@@ -10,7 +10,7 @@ public interface IRazorpayService
     Task<string?> CreateNetbankingPaymentLinkAsync(PaymentLinkWithNetBankingRequest netbankingPaymentLinkDto);  
     Task<CreateOrderResponseDto?> CreateOrderAsync(OrderDto orderDto); 
      Task<CreateItemResponseDto?> CreateItemAsync(ItemDto itemDto); 
-     Task<CreateInvoiceResponseDto?> CreateInvoiceAsync(string customerId,  string itemId); 
+     Task<CreateInvoiceResponseDto?> CreateInvoiceAsync(InvoiceDto invoiceDto); 
      Task<CreateCustomerResponseDto?> CreateCustomerAsync(RazorpayCustomerDto customerDto); 
 
 
