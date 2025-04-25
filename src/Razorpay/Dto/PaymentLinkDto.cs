@@ -17,6 +17,7 @@ namespace Razorpay.Dto
 
         // }
         [JsonProperty("amount")]
+        [JsonIgnore]
         public int Amount { get; set; }
 
         [JsonProperty("currency")]
@@ -50,14 +51,17 @@ namespace Razorpay.Dto
         [JsonProperty("reminder_enable")]
         public bool ReminderEnable { get; set; }
 
-        [JsonProperty("notes")]
-        public JToken Notes { get; set; } = JValue.CreateNull();
+        // [JsonProperty("notes")]
+        // public JToken Notes { get; set; } = JValue.CreateNull();
 
         [JsonProperty("callback_url")]
         public string CallbackUrl { get; set; } = string.Empty;
 
         [JsonProperty("callback_method")]
         public string CallbackMethod { get; set; } = string.Empty;
+        public RazorpayCustomerDto RazorpayCustomerDto { get; set; } = new();
+        public OrderDto OrderDto { get; set; } = new(); 
+        public ItemDto ItemDto { get; set; } = new();  
     }
 
     public class CustomerDto

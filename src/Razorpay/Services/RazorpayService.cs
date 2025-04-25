@@ -99,96 +99,46 @@ public class RazorpayService : IRazorpayService
 
     }
 
-    public async Task<string?> CreatePaymentLinkAsync(PaymentLinkDto paymentLinkDto)
+    public async Task<string?> CreatePaymentLinkAsync(PaymentLinkRequestDto paymentLinkDto)
     {
         if (paymentLinkDto == null)
         {
             return null; 
         }
 
-        // var customerObj = new RazorpayCustomerDto 
-        // {
-        //     Name = paymentLinkDto.RazorpayCustomer.Name,
-        //     Email = paymentLinkDto.RazorpayCustomer.Email,
-        //     Contact = paymentLinkDto.RazorpayCustomer.Contact,
-        //     Fail_existing = paymentLinkDto.RazorpayCustomer.Fail_existing,
-        //     Gstin = paymentLinkDto.RazorpayCustomer.Gstin,
-        //     Notes = paymentLinkDto.RazorpayCustomer.Notes
+       
+        
 
-        // }; 
 
-        // var customer = await CreateCustomerAsync(customerObj); 
 
-        // if (customer is null)
-        // {
-        //     Console.WriteLine("Cannot create Customer"); 
-        //     return null; 
-        // }
 
-        // var customerId = customer.Id; 
 
-        // var itemObj = new ItemDto
-        // {
-        //      Name = paymentLinkDto.Item.Name, 
-        //     Amount = paymentLinkDto.Item.Amount,
-        //     Currency = paymentLinkDto.Item.Currency,
-        //     Description = paymentLinkDto.Item.Description,
-           
-        // }; 
+paymentLinkDto.ExpireBy = DateTimeOffset.UtcNow.AddHours(24).ToUnixTimeSeconds(); 
+paymentLinkDto.ReferenceId = $"REF-{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 10).ToUpper()}"; 
 
-        // var item = await CreateItemAsync(itemObj); 
+Console.WriteLine("Payment Link Request: " + JsonConvert.SerializeObject(paymentLinkDto)); 
 
-        // if (item is null)
-        // {
-        //      Console.WriteLine("Cannot create Item"); 
-        //     return null; 
-        // }
 
-        // var itemId =  item.Id; 
+        // var json = JsonConvert.SerializeObject(paymentLinkDto);
 
-     
 
-        // var invoice = await CreateInvoiceAsync(customerId, itemId);
 
-        // if (invoice is null)
-        // {
-        //      Console.WriteLine("Cannot create Invoice"); 
-        //     return null; 
-        // } 
-
-      var paymentLinkObj = new PaymentLinkDto
-{
-    Amount = paymentLinkDto.Amount,
-    Currency = paymentLinkDto.Currency,
-    AcceptPartial = paymentLinkDto.AcceptPartial,
-    FirstMinPartialAmount = paymentLinkDto.FirstMinPartialAmount,
-    ExpireBy = DateTimeOffset.UtcNow.AddHours(24).ToUnixTimeSeconds(),
-    ReferenceId = $"REF-{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 10).ToUpper()}",
-    Description = paymentLinkDto.Description,
-    Customer = new CustomerDto
-    {
-        Name = paymentLinkDto.Customer.Name,
-        Contact = paymentLinkDto.Customer.Contact,
-        Email = paymentLinkDto.Customer.Email
-    },
-    Notify = new RazorpayNotify
-    {
-        Sms = paymentLinkDto.Notify.Sms,
-        Email = paymentLinkDto.Notify.Email
-    },
-    ReminderEnable = paymentLinkDto.ReminderEnable,
-    Notes = paymentLinkDto.Notes,
-    CallbackUrl = paymentLinkDto.CallbackUrl,
-    CallbackMethod = paymentLinkDto.CallbackMethod
-};
-
-        var content = new StringContent(JsonConvert.SerializeObject(paymentLinkObj), Encoding.UTF8, "application/json"); 
+        var content = new StringContent(JsonConvert.SerializeObject(paymentLinkDto), Encoding.UTF8, "application/json"); 
 
         var response = await _client.PostAsync("payment_links", content); 
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Razorpay Payment Link Creation Error: " + errorContent);    
+        }
 
         var responseBody = await response.Content.ReadAsStringAsync(); 
 
         var paymentLinkResponse = JsonConvert.DeserializeObject<CreatePaymentLinkDto>(responseBody); 
+       
+
+
 
         if (paymentLinkResponse is null)
         {
@@ -207,27 +157,47 @@ public class RazorpayService : IRazorpayService
 
     public  async Task<CreateCustomerResponseDto?> CreateCustomerAsync(RazorpayCustomerDto customerDto)
     {
+
+        Console.WriteLine("Customer: " + customerDto.Name); 
         if (customerDto == null)
         {
+            Console.WriteLine("Customer data is Empty");
             return null; 
             
         }
 
-        var json = JsonConvert.SerializeObject(customerDto); 
+        var customerObj = new RazorpayCustomerDto
+        {
+            Name = customerDto.Name,
+            Email = customerDto.Email,
+            Contact = customerDto.Contact,
+            Fail_existing = customerDto.Fail_existing,
+            Gstin = customerDto.Gstin,
+            
+        }; 
 
-        Console.WriteLine(json); 
+        var json = JsonConvert.SerializeObject(customerObj);
+        Console.WriteLine("Customer JSON: " + json); 
 
         
 
-        var content = new StringContent(json, Encoding.UTF8, "application/json"); 
+        
 
-        Console.WriteLine(content); 
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var contentBody = await content.ReadAsStringAsync();  
+        Console.WriteLine("Customer Content: " + contentBody);
+
+        
 
         var response = await _client.PostAsync("customers", content); 
+
+        Console.WriteLine(response); 
         if (!response.IsSuccessStatusCode)
         {
             throw new Exception($"Failed to create customer: {response.ReasonPhrase}");
         }
+
+
 
         
 

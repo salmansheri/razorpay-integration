@@ -77,19 +77,51 @@ namespace Razorpay.Controllers
 
 
         [HttpPost("standard")]
-        public async Task<ActionResult<CreatePaymentLinkDto>> CreatePaymentLinkStandard([FromBody] PaymentLinkDto paymentLinkDto)
+        public async Task<ActionResult<CreatePaymentLinkDto>> CreatePaymentLinkStandard([FromBody] PaymentLinkRequestDto paymentLinkDto)
         {
             if (paymentLinkDto is null)
             {
                 return BadRequest(); 
             }
 
+            // var customer = await _razorpayService.CreateCustomerAsync(paymentLinkDto.RazorpayCustomerDto); 
+
+            // Console.WriteLine("Customer:" + customer.Id); 
+            
+            // if (customer == null || string.IsNullOrEmpty(customer.Id) || string.IsNullOrWhiteSpace(customer.Id))
+            // {
+            //     return BadRequest(new { Result = "Fail", Message="Cannot Create Customer"}); 
+            // }
+
+            // var order  = await _razorpayService.CreateOrderAsync(paymentLinkDto.OrderDto); 
+            
+            //  if (order == null || string.IsNullOrEmpty(order.Id) || string.IsNullOrWhiteSpace(order.Id))
+            // {
+            //     return BadRequest(new { Result = "Fail", Message="Cannot Create order"}); 
+            // }
+
+            // var item = await _razorpayService.CreateItemAsync(paymentLinkDto.ItemDto); 
+
+            // if (item == null || string.IsNullOrEmpty(item.Id) || string.IsNullOrWhiteSpace(item.Id))
+            // {
+            //     return BadRequest(new { Result = "Fail", Message="Cannot Create Item"}); 
+            // }
+
+            // Console.WriteLine("Amount: " + paymentLinkDto.OrderDto.Amount);
+
+
+            Console.WriteLine("payment amount: " + paymentLinkDto.Amount);
+            
+            Console.WriteLine("Payment Link Data:" + JsonConvert.SerializeObject(paymentLinkDto));
+
+    
+
             var shortUrl = await _razorpayService.CreatePaymentLinkAsync(paymentLinkDto); 
 
-            if (string.IsNullOrEmpty(shortUrl))
-            {
-                return NotFound(); 
-            }
+            // if (string.IsNullOrEmpty(shortUrl))
+            // {
+            //     return NotFound(new { Result = "Fail", Message = "Cannot Create Payment Link"}); 
+            // }
 
             var response = new { shortUrl}; 
             return Ok(response); 
@@ -185,7 +217,7 @@ namespace Razorpay.Controllers
     },
 
     ReminderEnable = paymentLinkDto.ReminderEnable,
-    Notes = paymentLinkDto.Notes ,
+    // Notes = paymentLinkDto.Notes ,
     CallbackUrl = paymentLinkDto.CallbackUrl?.Trim() ?? string.Empty,
     CallbackMethod = paymentLinkDto.CallbackMethod?.Trim() ?? string.Empty
 };
